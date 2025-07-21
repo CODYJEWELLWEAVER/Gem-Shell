@@ -8,6 +8,7 @@ from modules.notifications import NotificationPopUp
 from modules.osd import OSD
 
 from util.helpers import init_data_directory
+from config.storage import STORAGE_DIRECTORY
 
 import asyncio
 from gi.events import GLibEventLoopPolicy
@@ -15,13 +16,14 @@ from gi.events import GLibEventLoopPolicy
 
 @logger.catch
 def main():
+    init_data_directory()
+    logger.add(STORAGE_DIRECTORY + "shell.log", retention="1 days")
+
     APP_NAME = "Fabric-Shell"
 
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
 
     setproctitle.setproctitle(APP_NAME)
-
-    init_data_directory()
 
     control_panel = ControlPanel.get_instance()
     bar = Bar()
