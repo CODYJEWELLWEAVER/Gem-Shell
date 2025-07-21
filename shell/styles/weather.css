@@ -1,0 +1,14 @@
+.weather-info-small {
+    margin-top: 10px;
+    margin-right: 20px;
+    background-color: var(--background);
+    padding: 10px;
+}
+
+.weather-info-label {
+    font-size: 28px;
+}
+
+.weather-icon {
+    font-family: tabler-icons;
+}

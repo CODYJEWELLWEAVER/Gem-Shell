@@ -1,0 +1,1 @@
+DEFAULT_WIFI_IFACE = "wlp7s0"

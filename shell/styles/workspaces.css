@@ -1,0 +1,28 @@
+#workspaces {
+    background-color: var(--background);
+    padding: 11px 11px;
+    margin-top: 10px;
+    margin-left: 20px;
+    min-width: 240px;
+}
+
+#workspaces > button {
+    min-width: 12px;
+    min-height: 12px;
+    margin: 8px 5px;
+    background-color: var(--foreground);
+    transition: all 0.25s cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+#workspaces > button.active {
+    background-color: var(--highlight);
+    min-width: 50px;
+}
+
+#workspaces > button.empty {
+    background-color: var(--background-alt);
+}
+
+#workspaces > button.urgent {
+    background-color: var(--status-ok);
+}
