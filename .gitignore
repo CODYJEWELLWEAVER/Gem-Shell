@@ -1,8 +1,8 @@
-# API keys
-API_KEYS.py
-
 # Autostart script
 start.sh
+
+# ruff linting and formatting script
+lint.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

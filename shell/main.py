@@ -19,11 +19,10 @@ def main():
     init_data_directory()
     logger.add(STORAGE_DIRECTORY + "shell.log", retention="1 days")
 
-    APP_NAME = "Fabric-Shell"
+    APP_NAME = "Gem-Shell"
+    setproctitle.setproctitle(APP_NAME)
 
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
-
-    setproctitle.setproctitle(APP_NAME)
 
     control_panel = ControlPanel.get_instance()
     bar = Bar()

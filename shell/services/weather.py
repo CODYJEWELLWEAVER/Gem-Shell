@@ -57,7 +57,6 @@ class WeatherService(Service, Singleton):
         self._status = new_status
 
     async def retrieve_data(self):
-        logger.info("Fetching weather data...")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.get(WEATHER_API_URL) as response:
