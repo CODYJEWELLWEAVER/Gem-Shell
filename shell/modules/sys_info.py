@@ -14,9 +14,6 @@ from pynvml_utils import nvidia_smi
 nvsmi = nvidia_smi.getInstance()
 
 
-# TODO: Move fabricators into services so they can be shared efficiently
-
-
 class SysInfoCircularBar(AnimatedCircularProgressBar):
     def __init__(self, icon, poll_func, **kwargs):
         super().__init__(

@@ -4,7 +4,6 @@ from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.audio.service import Audio
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.scale import Scale
 from fabric.utils import truncate, bulk_connect
 
 from gi.repository import Playerctl, GdkPixbuf
@@ -13,6 +12,7 @@ import pulsectl
 from loguru import logger
 
 from services.volume import VolumeService
+from widgets.animated_scale import AnimatedScale
 from widgets.custom_image import CustomImage
 from util.ui import add_hover_cursor, toggle_visible
 from util.helpers import get_file_path_from_mpris_url
@@ -95,7 +95,7 @@ class MediaControl(Box):
         )
         add_hover_cursor(self.next_track_control)
 
-        self.volume_scale = Scale(
+        self.volume_scale = AnimatedScale(
             name="volume-scale",
             increments=(0.01, 0.1),
             h_align="center",
@@ -124,7 +124,7 @@ class MediaControl(Box):
 
     def set_volume_scale_value(self, *args):
         volume = self.volume_service.volume if not self.volume_service.is_muted else 0
-        self.volume_scale.value = volume
+        self.volume_scale.animate_value(volume)
 
     def toggle_play_pause(self, *args):
         players = self.manager.props.players

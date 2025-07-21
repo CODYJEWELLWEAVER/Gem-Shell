@@ -1,17 +1,16 @@
-from fabric.widgets.circularprogressbar import CircularProgressBar
+from fabric.widgets.scale import Scale
 from widgets.animator import Animator
 
-### CREDIT TO ITS_DARSH: https://github.com/its-darsh
 
-
-class AnimatedCircularProgressBar(CircularProgressBar):
+class AnimatedScale(Scale):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         self.animator = (
             Animator(
                 # edit the following parameters to customize the animation
                 bezier_curve=(0.5, 0.0, 0.5, 1.0),
-                duration=0.5,
+                duration=0.1,
                 min_value=self.min_value,
                 max_value=self.value,
                 tick_widget=self,

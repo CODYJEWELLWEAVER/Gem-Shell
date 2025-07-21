@@ -5,7 +5,7 @@ from fabric.utils import get_relative_path, monitor_file
 from modules.bar import Bar
 from modules.control_panel import ControlPanel
 from modules.notifications import NotificationPopUp
-from modules.osd import OSD
+from modules.osd import VolumeOSD
 
 from util.helpers import init_data_directory
 from config.storage import STORAGE_DIRECTORY
@@ -27,10 +27,15 @@ def main():
     control_panel = ControlPanel.get_instance()
     bar = Bar()
     notification_pop_up = NotificationPopUp()
-    osd = OSD()
+    volume_osd = VolumeOSD()
 
     app = Application(
-        APP_NAME, bar, control_panel, notification_pop_up, osd, open_inspector=False
+        APP_NAME,
+        bar,
+        control_panel,
+        notification_pop_up,
+        volume_osd,
+        open_inspector=False,
     )
 
     def apply_stylesheet(*_):
