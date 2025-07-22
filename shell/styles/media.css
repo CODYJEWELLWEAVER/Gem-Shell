@@ -2,13 +2,14 @@
     margin-top: 10px;
     margin-left: 20px;
     background-color: var(--background);
-    padding: 0px 5px;
+    padding: 0px 10px;
+    min-height: 50px;
 }
 
 .media-control-icon {
     font-family: tabler-icon;
-    font-size: 24px;
-    padding: 5px;
+    font-size: 28px;
+    padding: 10px;
 }
 
 #info-box {
@@ -21,33 +22,6 @@
 
 #info-box-artist {
     font-size: 10px;
-}
-
-#volume-scale {
-    margin: 10px;
-    background-color: var(--background-alt);
-    min-width: 200px;
-    border: 5px solid var(--foreground);
-    box-shadow: -5px 5px 30px var(--shadow);
-}
-
-#volume-scale trough {
-    padding: 0 10px;
-}
-
-#volume-scale trough highlight {
-    background-color: var(--background);
-    min-height: 12px;
-    min-width: 12px;
-    margin: 0 -10px;
-}
-
-#volume-scale slider {
-    border-radius: 100%;
-    min-width: 12px;
-    min-height: 12px;
-    background-color: var(--foreground);
-    border: 4px solid var(--foreground);
 }
 
 #media-info-panel {

@@ -4,7 +4,7 @@ from fabric.utils.helpers import invoke_repeater
 
 from util.helpers import get_country_code
 from util.singleton import Singleton
-from config.calendar import USER_BIRTHDAY, FIRST_WEEK_DAY, UPDATE_INTERVAL
+from config.calendar import USER_BIRTHDAY, FIRST_WEEK_DAY, TODAY_UPDATE_INTERVAL
 
 from datetime import date as Date
 import calendar
@@ -26,9 +26,7 @@ class CalendarService(Service, Singleton):
         self._holidays = holidays.country_holidays(self._country_code)
         self._user_birthday = Date.fromisoformat(USER_BIRTHDAY)
 
-        # TODO: Find a more efficient way to check this?
-        # check every minute for change of date
-        invoke_repeater(UPDATE_INTERVAL, self.update_today)  # 60 seconds
+        invoke_repeater(TODAY_UPDATE_INTERVAL, self.update_today)
 
     @Property(Date, flags="readable")
     def today(self) -> Date:

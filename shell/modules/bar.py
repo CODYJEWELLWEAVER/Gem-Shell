@@ -14,7 +14,6 @@ from modules.sys_info import SilentModeIndicator
 from util.ui import corner
 
 
-from gi.repository import Playerctl
 
 
 class Bar(Window):
@@ -29,9 +28,7 @@ class Bar(Window):
 
         self.control_panel = ControlPanel.get_instance()
 
-        self.player_manager = Playerctl.PlayerManager()
-
-        self.media = MediaControl(self.player_manager)
+        self.media = MediaControl()
 
         self.power = PowerControl()
 

@@ -3,6 +3,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.widgets.scrolledwindow import ScrolledWindow
+from fabric.utils.helpers import bulk_connect
 
 from services.calendar import (
     CalendarService as CalendarService,
@@ -128,8 +129,12 @@ class Calendar(Box):
             self.day_view,
         ]
 
-        self.calendar_service.connect(
-            "notify::selected-date", self.on_selected_date_changed
+        bulk_connect(
+            self.calendar_service,
+            {
+                "notify::selected-date": self.on_selected_date_changed,
+                "notify::today": self.on_today_changed,
+            },
         )
 
         self.reminder_service.connect("changed", self.update_day_view_children)
@@ -243,7 +248,6 @@ class Calendar(Box):
         self.calendar_service.select_month(month)
         self.do_swap_calendar()
 
-    # TODO: Fix all these toggle visible calls
     def do_select_day(self, date):
         self.calendar_service.selected_date = date
         toggle_visible(self.day_label, self.day_calendar, self.day_view)
@@ -272,6 +276,10 @@ class Calendar(Box):
         self.day_view_list.add(
             CreateReminderButton(on_clicked=self.show_reminder_creation_view)
         )
+
+    def on_today_changed(self, *args):
+        self.day_calendar.children = self.get_day_buttons()
+        self.month_calendar.children = self.get_month_buttons()
 
 
 class DayButton(Button):

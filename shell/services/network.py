@@ -43,7 +43,6 @@ class NetworkService(Service, Singleton):
             },
         )
 
-        # scan for access-points initially
         self.request_scan()
 
     @Property(Literal["wireless", "ethernet", "disconnected"], flags="readable")
@@ -59,6 +58,7 @@ class NetworkService(Service, Singleton):
             elif "ethernet" in connection_type:
                 return "ethernet"
         else:
+            # sometimes primary connection is not updated so we have to use this
             active_connections = self.active_connections
             if len(active_connections) > 0:
                 connection_type = active_connections[0].get_connection_type()
@@ -71,12 +71,14 @@ class NetworkService(Service, Singleton):
 
     @Property(List[NM.RemoteConnection], flags="readable")
     def connections(self) -> List[NM.RemoteConnection]:
+        # ignore loopback connection
         return [con for con in self._client.get_connections() if con.get_id() != "lo"]
 
     @Property(List[NM.ActiveConnection], flags="readable")
     def active_connections(self) -> List[NM.ActiveConnection] | None:
         active_connections = self._client.get_active_connections()
         if active_connections is not None:
+            # ignore loopback connection
             return [con for con in active_connections if con.get_id() != "lo"]
         return None
 
@@ -105,6 +107,10 @@ class NetworkService(Service, Singleton):
         )
 
     def get_default_wifi_device(self) -> NM.DeviceWifi | None:
+        """
+        looks for the wifi interface specified in config.network
+        returns the first wifi interface found otherwise
+        """
         wifi_devices = self.get_wifi_devices()
         if len(wifi_devices) > 0:
             for dev in wifi_devices:
@@ -120,8 +126,8 @@ class NetworkService(Service, Singleton):
         ]
 
     def connect_wifi_device_to_notify_access_points(self, device) -> None:
-        # link wifi devices to notify when they
-        # add or remove access points
+        """link wifi devices to notify when they
+        add or remove access points"""
         if device is not None:
 
             def notify_access_points(*args):
@@ -155,7 +161,7 @@ class NetworkService(Service, Singleton):
         is_secured: bool,
         password: str | None,
     ) -> None:
-        # create new connection object and fill the settings
+        """creates new connection and activates"""
         connection = NM.RemoteConnection()
         connection.set_path(path)
 

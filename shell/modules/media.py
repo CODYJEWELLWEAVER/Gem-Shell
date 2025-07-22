@@ -28,7 +28,7 @@ import config.icons as Icons
 
 
 class MediaControl(Box):
-    def __init__(self, player_manager, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(
             name="media-control",
             spacing=10,
@@ -37,7 +37,7 @@ class MediaControl(Box):
             **kwargs,
         )
 
-        self.manager = player_manager
+        self.player_manager = Playerctl.PlayerManager()
         self.audio = Audio()
         self.pulse = pulsectl.Pulse()
         self.volume_service = VolumeService.get_instance()
@@ -95,59 +95,47 @@ class MediaControl(Box):
         )
         add_hover_cursor(self.next_track_control)
 
-        self.volume_scale = AnimatedScale(
-            name="volume-scale",
-            increments=(0.01, 0.1),
-            h_align="center",
-            value=self.volume_service.volume,
-        )
-        self.volume_scale.connect("change-value", self.on_volume_slider_value_change)
-        add_hover_cursor(self.volume_scale)
-
         self.children = [
             self.media_info,
             self.output_control,
             self.prev_track_control,
             self.play_control,
             self.next_track_control,
-            self.volume_scale,
         ]
 
-        for name in player_manager.props.player_names:
+        for name in self.player_manager.props.player_names:
             self.init_player(name)
 
-        player_manager.connect("name-appeared", self.on_name_appeared)
+        self.player_manager.connect("name-appeared", self.on_name_appeared)
 
         self.audio.connect("speaker_changed", self.on_speaker_changed)
-
-        self.volume_service.connect("changed", self.set_volume_scale_value)
 
     def set_volume_scale_value(self, *args):
         volume = self.volume_service.volume if not self.volume_service.is_muted else 0
         self.volume_scale.animate_value(volume)
 
     def toggle_play_pause(self, *args):
-        players = self.manager.props.players
+        players = self.player_manager.props.players
         if players:
             players[0].play_pause()
 
     def skip_to_prev_track(self, *args):
-        players = self.manager.props.players
+        players = self.player_manager.props.players
         if players:
             players[0].previous()
 
     def skip_to_next_track(self, *args):
-        players = self.manager.props.players
+        players = self.player_manager.props.players
         if players:
             players[0].next()
 
     def init_player(self, name):
         player = Playerctl.Player.new_from_name(name)
-        player.connect("playback-status::playing", self.on_play, self.manager)
-        player.connect("playback-status::paused", self.on_pause, self.manager)
-        player.connect("playback-status::stopped", self.on_pause, self.manager)
-        player.connect("metadata", self.on_metadata, self.manager)
-        self.manager.manage_player(player)
+        player.connect("playback-status::playing", self.on_play, self.player_manager)
+        player.connect("playback-status::paused", self.on_pause, self.player_manager)
+        player.connect("playback-status::stopped", self.on_pause, self.player_manager)
+        player.connect("metadata", self.on_metadata, self.player_manager)
+        self.player_manager.manage_player(player)
 
     def on_play(self, player, status, manager):
         label = Label(style_classes="media-control-icon", markup=Icons.pause)
@@ -268,26 +256,6 @@ class MediaControl(Box):
             self.pulse.sink_default_set(new_sink)
         except pulsectl.pulsectl.PulseIndexError:
             logger.error(f"Could not set default sink: {new_sink_name}")
-
-    def on_volume_slider_value_change(self, widget, event, value):
-        if value < 0:
-            value = 0
-        elif value > 1:
-            value = 1
-
-        sink = self.pulse.sink_default_get()
-
-        # unmute sink on slide
-        if sink.mute and value > 0:
-            self.pulse.sink_mute(sink.index, False)
-
-        sink_volume = sink.volume
-        sink_volume.value_flat = value
-        self.pulse.sink_volume_set(sink.index, sink_volume)
-
-    def get_pulse_volume(self, *args):
-        sink = self.pulse.sink_default_get()
-        return 0 if sink.mute else sink.volume.value_flat
 
     def show_media_info_panel(self, *args):
         toggle_visible(self.media_panel)
