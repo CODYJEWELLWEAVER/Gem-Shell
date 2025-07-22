@@ -80,7 +80,7 @@ plus: str = "&#xeb0b;"
 
 reminder: str = "&#xfd2e;"
 
-volume_muted: str = "&#xf1c3;"
+volume_muted: str = "&#xeb50;"
 
 volume_high: str = "&#xeb51;"
 

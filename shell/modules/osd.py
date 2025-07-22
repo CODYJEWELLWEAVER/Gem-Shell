@@ -3,7 +3,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 
 from widgets.animated_scale import AnimatedScale
-from services.volume import VolumeService
+from services.media import MediaService
 import config.icons as Icons
 from config.osd import TIMEOUT_DELAY
 
@@ -24,10 +24,10 @@ class VolumeOSD(Window):
 
         self.timeout_id = None
 
-        self.volume_service = VolumeService.get_instance()
+        self.media_service = MediaService.get_instance()
 
         self.volume_scale = AnimatedScale(
-            value=self.volume_service.volume,
+            value=self.media_service.volume,
             name="volume-osd-scale",
         )
         self.volume_label = Label(
@@ -44,7 +44,7 @@ class VolumeOSD(Window):
 
         self.add(self.content)
 
-        self.volume_service.connect("changed", self.on_volume_changed)
+        self.media_service.connect("notify::volume", self.on_notify_volume)
 
         # do allow user to move scale value with clicking
         self.volume_scale.set_sensitive(False)
@@ -55,16 +55,12 @@ class VolumeOSD(Window):
         self.hide()
         return False
 
-    def on_volume_changed(self, *args):
+    def on_notify_volume(self, *args):
         if self.timeout_id is not None:
             GLib.source_remove(self.timeout_id)
             self.timeout_id = None
 
-        volume = self.volume_service.volume
-        is_muted = self.volume_service.is_muted
-
-        if is_muted:
-            volume = 0.0
+        volume = self.media_service.volume
 
         self.volume_scale.animate_value(volume)
 

@@ -14,8 +14,6 @@ from modules.sys_info import SilentModeIndicator
 from util.ui import corner
 
 
-
-
 class Bar(Window):
     def __init__(self, **kwargs):
         super().__init__(
