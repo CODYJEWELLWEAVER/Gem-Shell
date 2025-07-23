@@ -84,11 +84,17 @@ class MediaControl(Box):
         )
         add_hover_cursor(self.next_track_control)
 
-        self.mute_indicator = Label(
-            markup=Icons.volume_muted,
+        mute_label = Label(
+            markup=Icons.volume_muted 
+            if self.media_service.is_muted 
+            else Icons.volume_high,
             style_classes="media-control-icon",
-            visible=self.media_service.is_muted,
         )
+        self.mute_control = Button(
+            child=mute_label,
+            on_clicked=lambda *_: self.media_service.toggle_mute()
+        )
+        add_hover_cursor(self.mute_control)
 
         self.children = [
             self.media_info,
@@ -96,7 +102,7 @@ class MediaControl(Box):
             self.prev_track_control,
             self.play_control,
             self.next_track_control,
-            self.mute_indicator,
+            self.mute_control,
         ]
 
         bulk_connect(
@@ -206,7 +212,17 @@ class MediaControl(Box):
         self.output_control.children = label
 
     def on_notify_is_muted(self, *args):
-        self.mute_indicator.set_visible(self.media_service.is_muted)
+        if self.media_service.is_muted:
+            icon = Icons.volume_muted
+        else:
+            icon = Icons.volume_high
+
+        mute_label = Label(
+            markup=icon,
+            style_classes="media-control-icon"
+        )
+
+        self.mute_control.children = mute_label
 
     def show_media_info_panel(self, *args):
         toggle_visible(self.media_panel)

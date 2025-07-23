@@ -1,33 +1,25 @@
+from typing import cast
 from fabric.core import Service, Signal, Property
 from fabric.audio import Audio as AudioService, AudioStream
-from fabric.utils import invoke_repeater, bulk_connect
+from fabric.utils import invoke_repeater, bulk_connect, remove_handler
 
 from util.singleton import Singleton
-from config.media import VOLUME_AND_MUTED_UPDATE_INTERVAL
+from config.media import ( 
+    VOLUME_AND_MUTED_UPDATE_INTERVAL,
+    TRACK_POSITION_UPDATE_INTERVAL
+)
 
 import pulsectl
-from gi.repository import Playerctl, GLib
+from gi.repository import Playerctl, GLib, GObject
 from loguru import logger
 
 
-""" 
-    Properties:
-        volume - pulse
-        is_muted - pulse
-        speaker - audio (fabric)
-        speakers - audio (fabric) - use notify::speakers - wait on this...
-        players - playerctl
-        position - playerctl, with added functionality to get accurate info
-        microphone - audio (fabric) - wait on this...
-    Signals:
-        metadata
-        playback-status
+# TODO: add microphone support
 
-    Functionality:
-        swap speaker
-        player controls
-        mute control
-"""
+
+MILLISECONDS_PER_SECOND = 1000
+def milliseconds_to_seconds(milliseconds: int) -> int:
+    return milliseconds / MILLISECONDS_PER_SECOND
 
 
 class MediaService(Service, Singleton):
@@ -60,13 +52,21 @@ class MediaService(Service, Singleton):
         self._player = new_player
 
     @Signal("playback-status", arg_types=Playerctl.PlaybackStatus)
-    def playback_status(self, status: Playerctl.PlaybackStatus) -> None: ...
+    def playback_status(self, status: Playerctl.PlaybackStatus) -> None:...
 
     @Signal("metadata", arg_types=GLib.Variant)
-    def metadata(self, metadata: GLib.Variant) -> None: ...
+    def metadata(self, metadata: GLib.Variant) -> None:...
+
+    @Signal("track-position", arg_types=GObject.TYPE_UINT64)
+    def track_position(self, position: GObject.TYPE_UINT64) -> None:... # in seconds
+
+    @Signal("track-length", arg_types=GObject.TYPE_UINT64)
+    def track_length(self, length: GObject.TYPE_UINT64) -> None:... # in seconds
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self._position_repeater_id = None
 
         self.pulse = pulsectl.Pulse()
         self.audio_service = AudioService()
@@ -98,12 +98,12 @@ class MediaService(Service, Singleton):
             },
         )
 
-    def get_pulse_volume(self):
+    def get_pulse_volume(self) -> float:
         sink = self.pulse.sink_default_get()
         volume = sink.volume.value_flat
         return volume
 
-    def get_pulse_is_muted(self):
+    def get_pulse_is_muted(self) -> bool:
         sink = self.pulse.sink_default_get()
         is_muted = sink.mute
         return bool(is_muted)
@@ -132,9 +132,14 @@ class MediaService(Service, Singleton):
 
     def on_playback_status(self, player, status, manager):
         self.playback_status(status)
+        if status == Playerctl.PlaybackStatus.PLAYING:
+            self.register_track_position_repeater()
+        else:
+            self.remove_track_position_repeater()
 
     def on_metadata(self, player, metadata, manager):
         self.metadata(metadata)
+        self.emit_track_length(metadata)
 
     def on_name_appeared(self, manager, name):
         self.init_player(name)
@@ -186,7 +191,7 @@ class MediaService(Service, Singleton):
             logger.warning(f"Could not skip to previous track: {e}")
 
     def skip_next(self):
-        if self.player is not None:
+        if self.player is None:
             return
 
         try:
@@ -197,3 +202,27 @@ class MediaService(Service, Singleton):
     def toggle_mute(self):
         sink = self.pulse.sink_default_get()
         self.pulse.mute(sink, not sink.mute)
+
+    def register_track_position_repeater(self):
+        self._position_repeater_id = invoke_repeater(
+            TRACK_POSITION_UPDATE_INTERVAL,
+            self.emit_track_position
+        )
+
+    def remove_track_position_repeater(self):
+        if self._position_repeater_id is not None:
+            remove_handler(self._position_repeater_id)
+
+    def emit_track_position(self):
+        if self.player is None:
+            return
+        
+        position = milliseconds_to_seconds(self.player.get_position())
+        self.track_position(position)
+
+        return True
+    
+    def emit_track_length(self, metadata: GLib.Variant):
+        if "mpris:length" in metadata.keys():
+            length = milliseconds_to_seconds(metadata["mpris:length"])
+            self.track_length(length)
