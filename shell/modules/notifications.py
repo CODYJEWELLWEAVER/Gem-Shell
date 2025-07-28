@@ -7,6 +7,7 @@ from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.image import Image
 from fabric.widgets.button import Button
 from fabric.utils.helpers import truncate
+from loguru import logger
 
 from services.notifications import NotificationService
 from util.helpers import get_app_icon_pixbuf
@@ -226,7 +227,12 @@ class NotificationPopUpElement(Box):
 
         self.add(header)
 
-        image_pixbuf = notification.image_pixbuf
+        try:
+            image_pixbuf = notification.image_pixbuf
+        except GLib.GError as e:
+            logger.warning(f"{e}")
+        else:
+            image_pixbuf = None
 
         if notification.body != "" or image_pixbuf is not None:
             body = Box(

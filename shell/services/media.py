@@ -4,22 +4,19 @@ from fabric.audio import Audio as AudioService, AudioStream
 from fabric.utils import invoke_repeater, bulk_connect, remove_handler
 
 from util.singleton import Singleton
-from config.media import ( 
-    VOLUME_AND_MUTED_UPDATE_INTERVAL,
-    TRACK_POSITION_UPDATE_INTERVAL
-)
+from config.media import VOLUME_AND_MUTED_UPDATE_INTERVAL
 
 import pulsectl
-from gi.repository import Playerctl, GLib, GObject
+from gi.repository import Playerctl, GLib
 from loguru import logger
 
 
 # TODO: add microphone support
 
 
-MILLISECONDS_PER_SECOND = 1000
-def milliseconds_to_seconds(milliseconds: int) -> int:
-    return milliseconds / MILLISECONDS_PER_SECOND
+MICROSECONDS_PER_SECOND = 1e6
+def microseconds_to_seconds(microseconds: int) -> int:
+    return microseconds // MICROSECONDS_PER_SECOND
 
 
 class MediaService(Service, Singleton):
@@ -56,12 +53,6 @@ class MediaService(Service, Singleton):
 
     @Signal("metadata", arg_types=GLib.Variant)
     def metadata(self, metadata: GLib.Variant) -> None:...
-
-    @Signal("track-position", arg_types=GObject.TYPE_UINT64)
-    def track_position(self, position: GObject.TYPE_UINT64) -> None:... # in seconds
-
-    @Signal("track-length", arg_types=GObject.TYPE_UINT64)
-    def track_length(self, length: GObject.TYPE_UINT64) -> None:... # in seconds
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -132,14 +123,12 @@ class MediaService(Service, Singleton):
 
     def on_playback_status(self, player, status, manager):
         self.playback_status(status)
-        if status == Playerctl.PlaybackStatus.PLAYING:
-            self.register_track_position_repeater()
-        else:
-            self.remove_track_position_repeater()
+        if status == Playerctl.PlaybackStatus.PLAYING and self.player is not None:
+            # make sure the current track's metadata is dispersed
+            self.metadata(self.player.props.metadata)
 
     def on_metadata(self, player, metadata, manager):
         self.metadata(metadata)
-        self.emit_track_length(metadata)
 
     def on_name_appeared(self, manager, name):
         self.init_player(name)
@@ -202,27 +191,3 @@ class MediaService(Service, Singleton):
     def toggle_mute(self):
         sink = self.pulse.sink_default_get()
         self.pulse.mute(sink, not sink.mute)
-
-    def register_track_position_repeater(self):
-        self._position_repeater_id = invoke_repeater(
-            TRACK_POSITION_UPDATE_INTERVAL,
-            self.emit_track_position
-        )
-
-    def remove_track_position_repeater(self):
-        if self._position_repeater_id is not None:
-            remove_handler(self._position_repeater_id)
-
-    def emit_track_position(self):
-        if self.player is None:
-            return
-        
-        position = milliseconds_to_seconds(self.player.get_position())
-        self.track_position(position)
-
-        return True
-    
-    def emit_track_length(self, metadata: GLib.Variant):
-        if "mpris:length" in metadata.keys():
-            length = milliseconds_to_seconds(metadata["mpris:length"])
-            self.track_length(length)

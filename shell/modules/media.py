@@ -1,8 +1,6 @@
 from fabric.widgets.box import Box
-from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.utils import truncate, bulk_connect
 
 from gi.repository import Playerctl, GdkPixbuf, GLib
@@ -15,14 +13,11 @@ from config.media import HEADPHONES
 import config.icons as Icons
 
 
-""" Side Media control and info module. """
-
-
 class MediaControl(Box):
     def __init__(self, **kwargs):
         super().__init__(
             name="media-control",
-            spacing=10,
+            spacing=20,
             v_align="center",
             h_align="center",
             **kwargs,
@@ -30,31 +25,20 @@ class MediaControl(Box):
 
         self.media_service = MediaService.get_instance()
 
-        self.media_panel = MediaPanel()
-
         self.title = Label(
             name="info-box-title",
         )
         self.artist = Label(
             name="info-box-artist",
         )
-        self.info_box = Box(
+        self.media_info = Box(
             name="info-box",
             orientation="v",
             v_align="center",
+            v_expand=True,
             h_align="center",
             children=[self.title, self.artist],
-        )
-        self.media_info = EventBox(
-            child=self.info_box, visible=False, events=["enter-notify", "leave-notify"]
-        )
-
-        bulk_connect(
-            self.media_info,
-            {
-                "enter-notify-event": self.show_media_info_panel,
-                "leave-notify-event": self.hide_media_info_panel,
-            },
+            visible=False
         )
 
         self.output_control = Button(
@@ -133,45 +117,25 @@ class MediaControl(Box):
 
         self.update_media_info_visibility(metadata)
 
-        self.update_album(metadata)
-
-        self.update_art(metadata)
-
     def update_title(self, metadata: dict):
         if "xesam:title" in metadata.keys() and metadata["xesam:title"] != "":
             self.media_info.set_property("visible", True)
 
-            title_str = metadata["xesam:title"]
-            self.title.set_property("label", truncate(title_str, 24))
+            title = truncate(metadata["xesam:title"], 36)
+            self.title.set_property("label", title)
             self.title.set_property("visible", True)
-
-            self.media_panel.title.set_property("label", title_str)
-            self.media_panel.title.set_property("visible", True)
-
-            self.media_info.set_property("visible", True)
         else:
             self.title.set_property("visible", False)
-            self.media_panel.title.set_property("visible", False)
 
     def update_artist(self, metadata: dict):
         if "xesam:artist" in metadata.keys() and metadata["xesam:artist"] != [""]:
             self.media_info.set_property("visible", True)
 
-            artist_str = metadata["xesam:artist"][0]
-            # add space and comma between title and artist when title is visible
-            if self.title.get_property("visible"):
-                self.artist.set_property("label", truncate(artist_str, 24))
-            else:
-                self.artist.set_property("label", artist_str)
+            artist = truncate(metadata["xesam:artist"][0], 36)
+            self.artist.set_property("label", artist)
             self.artist.set_property("visible", True)
-
-            self.media_panel.artist.set_property("label", artist_str)
-            self.media_panel.artist.set_property("visible", True)
-
-            self.media_info.set_property("visible", True)
         else:
             self.artist.set_property("visible", False)
-            self.media_panel.artist.set_property("visible", False)
 
     def update_media_info_visibility(self, metadata: dict):
         if (
@@ -182,13 +146,6 @@ class MediaControl(Box):
         ):
             self.media_info.set_property("visible", False)
 
-    def update_album(self, metadata: dict):
-        if "xesam:album" in metadata.keys() and metadata["xesam:album"] != "":
-            self.media_panel.album.set_property("label", metadata["xesam:album"])
-            self.media_panel.album.set_property("visible", True)
-        else:
-            self.media_panel.album.set_property("visible", False)
-
     def update_art(self, metadata: dict):
         if "mpris:artUrl" in metadata.keys():
             file_path = get_file_path_from_mpris_url(metadata["mpris:artUrl"])
@@ -197,9 +154,11 @@ class MediaControl(Box):
                 file_path, self_width - 60, self_width - 60, True
             )
             self.media_panel.art.set_property("pixbuf", art_pixbuf)
-            self.media_panel.art.set_property("visible", True)
+            visible = True
         else:
-            self.media_panel.art.set_property("visible", False)
+            visible = False
+
+        self.media_panel.art.set_visible(visible)
 
     def on_notify_speaker(self, *args):
         if self.media_service.speaker.name in HEADPHONES:
@@ -229,50 +188,3 @@ class MediaControl(Box):
 
     def hide_media_info_panel(self, *args):
         toggle_visible(self.media_panel)
-
-
-class MediaPanel(Window):
-    def __init__(self, **kwargs):
-        super().__init__(
-            name="media-info-panel",
-            layer="overlay",
-            anchor="left top",
-            exclusivity="none",
-            visible=False,
-            margin="20px 0px 0px 322px",
-            **kwargs,
-        )
-
-        self.art = CustomImage(name="media-art", visible=False)
-
-        self.title = Label(
-            style_classes="media-info-panel-text", visible=False, line_wrap="word"
-        )
-
-        self.artist = Label(
-            style_classes="media-info-panel-text", visible=False, line_wrap="word"
-        )
-
-        self.album = Label(
-            style_classes="media-info-panel-text", visible=False, line_wrap="word"
-        )
-
-        self.box = Box(
-            name="media-info-panel-box",
-            orientation="v",
-            v_align="center",
-            spacing=10,
-            children=[
-                Box(
-                    name="media-art-box",
-                    children=self.art,
-                    v_expand=True,
-                    h_expand=True,
-                ),
-                self.title,
-                self.artist,
-                self.album,
-            ],
-        )
-
-        self.children = self.box
