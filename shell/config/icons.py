@@ -100,6 +100,14 @@ color_palette: str = "&#xeb01;"
 
 mood_silence: str = "&#xf2e6;"
 
+bluetooth_off: str = "&#xeceb;"
+
+bluetooth_on: str = "&#xea37;"
+
+bluetooth_trusted: str = "&#xecea;"
+
+bluetooth_not_trusted: str = "&#xf081;"
+
 weather = {
     "Clear-Night": "&#xece7;",
     "Clear-Day": "&#xeb30;",

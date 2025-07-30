@@ -11,6 +11,7 @@ from config.profile import PROFILE_IMAGE_PATH
 from util.helpers import get_system_node_name, get_user_login_name
 from util.singleton import Singleton
 from modules.network import NetworkOverview, ConnectionSettings
+from modules.bluetooth import BluetoothOverview, BluetoothConnections
 from modules.notifications import NotificationsOverview
 from services.reminders import ReminderService
 from modules.reminders import CreateReminderView
@@ -37,9 +38,13 @@ class ControlPanel(Window, Singleton):
 
         self.reminder_service = ReminderService.get_instance()
 
-        self.network_overview = NetworkOverview(self.show_connections_view)
+        self.network_overview = NetworkOverview(self.show_network_view)
 
-        self.connection_settings = ConnectionSettings(self.show_main_view)
+        self.bluetooth_overview = BluetoothOverview(self.show_bluetooth_view)
+
+        self.network_connection_settings = ConnectionSettings(self.show_main_view)
+
+        self.bluetooth_connection_settings = BluetoothConnections(self.show_main_view)
 
         self.notifications_overview = NotificationsOverview(
             on_switch=self.show_to_do_list
@@ -114,6 +119,7 @@ class ControlPanel(Window, Singleton):
             h_expand=True,
             children=[
                 self.network_overview,
+                self.bluetooth_overview,
                 self.screenshot_tool,
                 self.hyprpicker_tool,
                 self.silent_mode_toggle,
@@ -137,11 +143,11 @@ class ControlPanel(Window, Singleton):
             ],
         )
 
-        self.connections_view = Box(
+        self.network_connections_view = Box(
             orientation="h",
             children=[
                 corner("left", "large"),
-                self.connection_settings,
+                self.network_connection_settings,
                 corner("right", "large"),
             ],
         )
@@ -155,13 +161,27 @@ class ControlPanel(Window, Singleton):
             ],
         )
 
+        self.bluetooth_connections_view = Box(
+            orientation="h",
+            children=[
+                corner("left", "large"),
+                self.bluetooth_connection_settings,
+                corner("right", "large"),
+            ],
+        )
+
         self.main_content_stack = Stack(
             transition_type="over-down-up",
             transition_duration=250,
             interpolate_size=True,
             h_expand=True,
             v_expand=True,
-            children=[self.main_view, self.connections_view, self.create_reminder_view],
+            children=[
+                self.main_view,
+                self.network_connections_view,
+                self.bluetooth_connections_view,
+                self.create_reminder_view,
+            ],
         )
 
         # allow stack to grow and shrink horizontally with each child
@@ -177,8 +197,11 @@ class ControlPanel(Window, Singleton):
     def show_main_view(self, *args):
         self.main_content_stack.set_visible_child(self.main_view)
 
-    def show_connections_view(self, *args):
-        self.main_content_stack.set_visible_child(self.connections_view)
+    def show_network_view(self, *args):
+        self.main_content_stack.set_visible_child(self.network_connections_view)
+
+    def show_bluetooth_view(self, *args):
+        self.main_content_stack.set_visible_child(self.bluetooth_connections_view)
 
     def show_reminder_creation_view(self, *args):
         self.create_reminder.set_date()

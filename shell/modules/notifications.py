@@ -227,12 +227,11 @@ class NotificationPopUpElement(Box):
 
         self.add(header)
 
+        image_pixbuf = None
         try:
             image_pixbuf = notification.image_pixbuf
         except GLib.GError as e:
             logger.warning(f"{e}")
-        else:
-            image_pixbuf = None
 
         if notification.body != "" or image_pixbuf is not None:
             body = Box(

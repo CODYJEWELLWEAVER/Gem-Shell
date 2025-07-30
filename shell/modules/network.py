@@ -18,7 +18,7 @@ gi.require_version("NM", "1.0")
 
 def get_connection_id(connection: NM.ActiveConnection) -> str:
     if connection is not None:
-        return truncate(connection.get_id(), 18)
+        return truncate(connection.get_id(), 15)
     else:
         return "Disconnected"
 
@@ -62,16 +62,10 @@ class NetworkOverview(Box):
         self.toggle_wifi_icon = Label(
             style_classes="network-control-icon", markup=Icons.wifi
         )
-        self.toggle_wifi_label = Label(
-            style_classes="network-control-label",
-            label=self.WIFI_ENABLED_LABEL
-            if self.network_service.wifi_enabled
-            else self.WIFI_DISABLED_LABEL,
-        )
         self.toggle_wifi_child_box = Box(
             spacing=10,
             orientation="h",
-            children=[self.toggle_wifi_icon, self.toggle_wifi_label],
+            children=[self.toggle_wifi_icon],
         )
         self.toggle_wifi = Button(
             style_classes="network-control-button",
@@ -132,13 +126,8 @@ class NetworkOverview(Box):
             style_classes="network-control-icon",
             markup=Icons.wifi if wifi_enabled else Icons.wifi_off,
         )
-        self.toggle_wifi_label.set_property(
-            "label",
-            self.WIFI_ENABLED_LABEL if wifi_enabled else self.WIFI_DISABLED_LABEL,
-        )
         self.toggle_wifi_child_box.children = [
             self.toggle_wifi_icon,
-            self.toggle_wifi_label,
         ]
 
     def on_wifi_connection_changed(self, service, _):
@@ -156,8 +145,8 @@ class NetworkOverview(Box):
         )
 
         self.wifi_child_box.children = [
-            self.wifi_connection_label,
             self.wifi_status_icon,
+            self.wifi_connection_label,
         ]
 
 

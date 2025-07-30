@@ -13,6 +13,7 @@
 @import url(./styles/osd.css);
 @import url(./styles/todo.css);
 @import url(./styles/tools.css);
+@import url(./styles/bluetooth.css);
 
 * {
     all: unset;

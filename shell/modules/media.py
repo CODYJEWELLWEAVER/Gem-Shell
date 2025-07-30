@@ -6,7 +6,6 @@ from fabric.utils import truncate, bulk_connect
 from gi.repository import Playerctl, GdkPixbuf, GLib
 
 from services.media import MediaService
-from widgets.custom_image import CustomImage
 from util.ui import add_hover_cursor, toggle_visible
 from util.helpers import get_file_path_from_mpris_url
 from config.media import HEADPHONES
@@ -38,7 +37,7 @@ class MediaControl(Box):
             v_expand=True,
             h_align="center",
             children=[self.title, self.artist],
-            visible=False
+            visible=False,
         )
 
         self.output_control = Button(
@@ -69,14 +68,13 @@ class MediaControl(Box):
         add_hover_cursor(self.next_track_control)
 
         mute_label = Label(
-            markup=Icons.volume_muted 
-            if self.media_service.is_muted 
+            markup=Icons.volume_muted
+            if self.media_service.is_muted
             else Icons.volume_high,
             style_classes="media-control-icon",
         )
         self.mute_control = Button(
-            child=mute_label,
-            on_clicked=lambda *_: self.media_service.toggle_mute()
+            child=mute_label, on_clicked=lambda *_: self.media_service.toggle_mute()
         )
         add_hover_cursor(self.mute_control)
 
@@ -176,10 +174,7 @@ class MediaControl(Box):
         else:
             icon = Icons.volume_high
 
-        mute_label = Label(
-            markup=icon,
-            style_classes="media-control-icon"
-        )
+        mute_label = Label(markup=icon, style_classes="media-control-icon")
 
         self.mute_control.children = mute_label
 

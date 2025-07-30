@@ -1,10 +1,9 @@
-from typing import cast
 from fabric.core import Service, Signal, Property
 from fabric.audio import Audio as AudioService, AudioStream
-from fabric.utils import invoke_repeater, bulk_connect, remove_handler
+from fabric.utils import invoke_repeater, bulk_connect
 
 from util.singleton import Singleton
-from config.media import VOLUME_AND_MUTED_UPDATE_INTERVAL
+from config.media import VOLUME_AND_MUTED_UPDATE_INTERVAL, UNSUPPORTED_PLAYER_NAMES
 
 import pulsectl
 from gi.repository import Playerctl, GLib
@@ -15,6 +14,8 @@ from loguru import logger
 
 
 MICROSECONDS_PER_SECOND = 1e6
+
+
 def microseconds_to_seconds(microseconds: int) -> int:
     return microseconds // MICROSECONDS_PER_SECOND
 
@@ -49,10 +50,10 @@ class MediaService(Service, Singleton):
         self._player = new_player
 
     @Signal("playback-status", arg_types=Playerctl.PlaybackStatus)
-    def playback_status(self, status: Playerctl.PlaybackStatus) -> None:...
+    def playback_status(self, status: Playerctl.PlaybackStatus) -> None: ...
 
     @Signal("metadata", arg_types=GLib.Variant)
-    def metadata(self, metadata: GLib.Variant) -> None:...
+    def metadata(self, metadata: GLib.Variant) -> None: ...
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -73,8 +74,8 @@ class MediaService(Service, Singleton):
 
         self.audio_service.connect("speaker-changed", self.on_speaker_changed)
 
-        for name in self.player_manager.props.player_names:
-            self.init_player(name)
+        for player_name in self.player_manager.props.player_names:
+            self.init_player(player_name)
 
         self.player = self.get_top_player()
 
@@ -115,8 +116,12 @@ class MediaService(Service, Singleton):
     def on_speaker_changed(self, *args):
         self.notify("speaker")
 
-    def init_player(self, name):
-        player = Playerctl.Player.new_from_name(name)
+    def init_player(self, player_name):
+        if player_name.name in UNSUPPORTED_PLAYER_NAMES:
+            # prevent players which can cause playerctl to crash from being managed
+            return
+
+        player = Playerctl.Player.new_from_name(player_name)
         player.connect("playback-status", self.on_playback_status, self.player_manager)
         player.connect("metadata", self.on_metadata, self.player_manager)
         self.player_manager.manage_player(player)
@@ -128,10 +133,11 @@ class MediaService(Service, Singleton):
             self.metadata(self.player.props.metadata)
 
     def on_metadata(self, player, metadata, manager):
-        self.metadata(metadata)
+        if metadata is not None:
+            self.metadata(metadata)
 
-    def on_name_appeared(self, manager, name):
-        self.init_player(name)
+    def on_name_appeared(self, manager, player_name):
+        self.init_player(player_name)
 
     def on_player(self, manager, player):
         self.player = self.get_top_player()

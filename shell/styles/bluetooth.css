@@ -1,0 +1,41 @@
+.bluetooth-overview-icon {
+    font-family: tabler-icons;
+}
+
+.bluetooth-overview-label {
+    font-size: 24px;
+}
+
+.bluetooth-overview-button {
+    background-color: var(--background-highlight);
+    padding: 10px;
+    box-shadow: 0px 0px 5px var(--background-highlight);
+    transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.bluetooth-overview-button:hover {
+    background-color: var(--background-alt);
+    box-shadow: 0px 0px 5px var(--highlight);
+}
+
+
+.bluetooth-connections-icon {
+    font-family: tabler-icons;
+}
+
+#bluetooth-devices-scrolled-window {
+    min-width: 500px;
+    background-color: var(--background-highlight);
+    padding: 20px;
+    margin: 10px;
+    box-shadow: 0px 0px 5px var(--background-highlight);
+}
+
+.bluetooth-device-element {
+    padding: 20px;
+    background-color: var(--background-alt);
+}
+
+.bluetooth-device-element-icon {
+    font-family: tabler-icons;
+}
