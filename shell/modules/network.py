@@ -209,7 +209,6 @@ class ConnectionSettings(Box):
             orientation="h",
             spacing=40,
             v_expand=True,
-            v_align="center",
             children=[
                 Box(
                     orientation="v",

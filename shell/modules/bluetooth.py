@@ -80,6 +80,8 @@ class BluetoothOverview(Box):
             self.power_icon,
         ]
 
+        self.bluetooth_service.notifier("connected-devices")
+
     def on_notify_connected_devices(self, *args):
         current_device = self.bluetooth_service.current_device
         if self.bluetooth_service.current_device is not None:
@@ -141,6 +143,17 @@ class BluetoothConnections(Box):
         )
         add_hover_cursor(request_scan_button)
 
+        self.toggle_scan_button = Button(
+            child=Label(
+                markup=Icons.search
+                if self.bluetooth_service.scanning
+                else Icons.search_off,
+                style_classes="bluetooth-connections-icon"
+            ),
+            on_clicked=lambda *_: self.bluetooth_service.toggle_scan()
+        )
+        add_hover_cursor(self.toggle_scan_button)
+
         self.bluetooth_devices_list = Box(spacing=20, orientation="v")
         self.bluetooth_devices = ScrolledWindow(
             child=self.bluetooth_devices_list,
@@ -157,13 +170,35 @@ class BluetoothConnections(Box):
         )
         add_hover_cursor(back_button)
 
-        self.children = [request_scan_button, self.bluetooth_devices, back_button]
+        self.children = [
+            Box(
+                spacing=20,
+                orientation="v",
+                v_expand=True,
+                v_align="center",
+                children=[
+                    request_scan_button,
+                    self.toggle_scan_button,
+                ]
+            ),
+            Box(
+                spacing=20,
+                orientation="v",
+                children=[
+                    Label(
+                        "Available Bluetooth Devices"
+                    ),
+                    self.bluetooth_devices,
+                ]
+            ), 
+            back_button
+        ]
 
         bulk_connect(
             self.bluetooth_service,
             {
-                "device-added": self.update_devices_list,
-                "device-removed": self.update_devices_list,
+                "notify::devices": self.on_notify_devices,
+                "notify::scanning": self.on_notify_scanning,
             },
         )
 
@@ -183,14 +218,24 @@ class BluetoothConnections(Box):
             [device for device in self.bluetooth_service.devices], key=sort_key
         )
 
-    def update_devices_list(self, *args):
+    def on_notify_devices(self, *args):
         self.bluetooth_devices_list.children = self.get_device_elements()
+
+    def on_notify_scanning(self, *args):
+        icon = Icons.search if self.bluetooth_service.scanning else Icons.search_off
+
+        self.toggle_scan_button.children = Label(
+            markup=icon,
+            style_classes="bluetooth-connections-icon"
+        )
 
 
 class BluetoothDeviceElement(Box):
     bluetooth_service: BluetoothService = BluetoothService.get_instance()
 
     def __init__(self, device: BluetoothDevice, **kwargs):
+        device.connect("changed", lambda *_: self.bluetooth_service.notifier("devices"))
+
         super().__init__(
             spacing=10,
             orientation="h",
@@ -205,19 +250,18 @@ class BluetoothDeviceElement(Box):
             ),
             on_clicked=lambda *_: device.connect_device(
                 connect=not device.connected,
-                callback=lambda *_: self.bluetooth_service.notifier(
-                    "connected_devices"
-                ),
+                callback=lambda *_: self.bluetooth_service.notifier("connected-devices")
             ),
         )
-        self.add(connect_button)
+        connect_button.set_sensitive(not device.connecting)
         add_hover_cursor(connect_button)
+        self.add(connect_button)
 
         self.add(
             Label(
-                markup=Icons.bluetooth_trusted
-                if device.trusted
-                else Icons.bluetooth_not_trusted,
+                markup=Icons.bluetooth_paired
+                if device.paired
+                else Icons.bluetooth_unpaired,
                 style_classes="bluetooth-device-element-icon",
             )
         )
@@ -230,3 +274,4 @@ class BluetoothDeviceElement(Box):
                 line_wrap="char",
             )
         )
+

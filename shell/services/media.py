@@ -4,6 +4,7 @@ from fabric.utils import invoke_repeater, bulk_connect
 
 from util.singleton import Singleton
 from config.media import VOLUME_AND_MUTED_UPDATE_INTERVAL, UNSUPPORTED_PLAYER_NAMES
+from services.bluetooth import BluetoothService
 
 import pulsectl
 from gi.repository import Playerctl, GLib
@@ -63,6 +64,7 @@ class MediaService(Service, Singleton):
         self.pulse = pulsectl.Pulse()
         self.audio_service = AudioService()
         self.player_manager = Playerctl.PlayerManager()
+        self.bluetooth_service = BluetoothService.get_instance()
 
         self.volume = self.get_pulse_volume()
         self.is_muted = self.get_pulse_is_muted()
@@ -118,7 +120,6 @@ class MediaService(Service, Singleton):
 
     def init_player(self, player_name):
         if player_name.name in UNSUPPORTED_PLAYER_NAMES:
-            # prevent players which can cause playerctl to crash from being managed
             return
 
         player = Playerctl.Player.new_from_name(player_name)
@@ -135,6 +136,8 @@ class MediaService(Service, Singleton):
     def on_metadata(self, player, metadata, manager):
         if metadata is not None:
             self.metadata(metadata)
+            # make sure that bluetooth device is shown in control panel
+            self.bluetooth_service.notifier("connected-devices")
 
     def on_name_appeared(self, manager, player_name):
         self.init_player(player_name)

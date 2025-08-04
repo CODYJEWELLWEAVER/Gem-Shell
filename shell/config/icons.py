@@ -76,6 +76,10 @@ delete: str = "&#xeb55;"
 
 refresh: str = "&#xeb13;"
 
+search: str = "&#xeb1c;"
+
+search_off: str = "&#xf19c;"
+
 plus: str = "&#xeb0b;"
 
 reminder: str = "&#xfd2e;"
@@ -104,9 +108,9 @@ bluetooth_off: str = "&#xeceb;"
 
 bluetooth_on: str = "&#xea37;"
 
-bluetooth_trusted: str = "&#xecea;"
+bluetooth_paired: str = "&#xecea;"
 
-bluetooth_not_trusted: str = "&#xf081;"
+bluetooth_unpaired: str = "&#xf081;"
 
 weather = {
     "Clear-Night": "&#xece7;",
