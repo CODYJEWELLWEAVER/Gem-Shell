@@ -1,0 +1,11 @@
+@import url("./styles/colors.css");
+@import url("./styles/app_element.css");
+@import url("./styles/runner.css");
+
+* {
+    all: unset;
+    color: var(--foreground);
+    font-family: "FantasqueSansM Nerd Font Mono";
+    font-size: 30px;
+    border-radius: 20px;
+}

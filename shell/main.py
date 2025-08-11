@@ -14,9 +14,6 @@ import asyncio
 from gi.events import GLibEventLoopPolicy
 
 
-from services.bluetooth import BluetoothService
-
-
 @logger.catch
 def main():
     init_data_directory()
@@ -31,8 +28,6 @@ def main():
     bar = Bar()
     notification_pop_up = NotificationPopUp()
     volume_osd = VolumeOSD()
-
-    BluetoothService.get_instance()
 
     app = Application(
         APP_NAME,

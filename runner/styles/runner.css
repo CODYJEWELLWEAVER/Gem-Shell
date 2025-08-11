@@ -1,0 +1,14 @@
+#runner-scrolled-window {
+    min-width: 600px;
+    min-height: 670px;
+    background-color: var(--background);
+}
+
+#app-list {
+    padding: 10px;
+}
+
+#runner-content-box {
+    padding: 100px;
+    background-color: transparent;
+}

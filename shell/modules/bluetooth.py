@@ -148,9 +148,9 @@ class BluetoothConnections(Box):
                 markup=Icons.search
                 if self.bluetooth_service.scanning
                 else Icons.search_off,
-                style_classes="bluetooth-connections-icon"
+                style_classes="bluetooth-connections-icon",
             ),
-            on_clicked=lambda *_: self.bluetooth_service.toggle_scan()
+            on_clicked=lambda *_: self.bluetooth_service.toggle_scan(),
         )
         add_hover_cursor(self.toggle_scan_button)
 
@@ -179,19 +179,17 @@ class BluetoothConnections(Box):
                 children=[
                     request_scan_button,
                     self.toggle_scan_button,
-                ]
+                ],
             ),
             Box(
                 spacing=20,
                 orientation="v",
                 children=[
-                    Label(
-                        "Available Bluetooth Devices"
-                    ),
+                    Label("Available Bluetooth Devices"),
                     self.bluetooth_devices,
-                ]
-            ), 
-            back_button
+                ],
+            ),
+            back_button,
         ]
 
         bulk_connect(
@@ -225,8 +223,7 @@ class BluetoothConnections(Box):
         icon = Icons.search if self.bluetooth_service.scanning else Icons.search_off
 
         self.toggle_scan_button.children = Label(
-            markup=icon,
-            style_classes="bluetooth-connections-icon"
+            markup=icon, style_classes="bluetooth-connections-icon"
         )
 
 
@@ -250,7 +247,9 @@ class BluetoothDeviceElement(Box):
             ),
             on_clicked=lambda *_: device.connect_device(
                 connect=not device.connected,
-                callback=lambda *_: self.bluetooth_service.notifier("connected-devices")
+                callback=lambda *_: self.bluetooth_service.notifier(
+                    "connected-devices"
+                ),
             ),
         )
         connect_button.set_sensitive(not device.connecting)
@@ -274,4 +273,3 @@ class BluetoothDeviceElement(Box):
                 line_wrap="char",
             )
         )
-

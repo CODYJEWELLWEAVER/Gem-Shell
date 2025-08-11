@@ -20,12 +20,16 @@ def get_app_icon_pixbuf(
     icon_info = icon_theme.lookup_icon(name, width, 0)  # No Flags
     if icon_info is not None:
         icon_path = icon_info.get_filename()
-        icon_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-            icon_path, width, height, preserve_aspect_ratio
-        )
-        return icon_pixbuf
+        try:
+            icon_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                icon_path, width, height, preserve_aspect_ratio
+            )
+            return icon_pixbuf
+        except Exception:
+            return None
 
     return None
+
 
 
 def get_user_login_name():

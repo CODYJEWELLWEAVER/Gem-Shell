@@ -15,7 +15,7 @@ class NotificationService(Notifications, Singleton):
         return self._is_silenced
 
     @Signal("silent-mode-changed", arg_types=(bool))
-    def silent_mode_changed(self, is_silenced: bool) -> None:...
+    def silent_mode_changed(self, is_silenced: bool) -> None: ...
 
     def toggle_silent_mode(self):
         self._is_silenced = not self._is_silenced
