@@ -10,8 +10,11 @@ class DesktopApp:
     def __init__(self, name: str, path: Path, icon: str):
         self.name = name
         self.path = path
-        self.icon_pixbuf = get_app_icon_pixbuf(icon, ICON_WIDTH, ICON_HEIGHT) \
-                            if icon is not None else None
+        self.icon_pixbuf = (
+            get_app_icon_pixbuf(icon, ICON_WIDTH, ICON_HEIGHT)
+            if icon is not None
+            else None
+        )
 
     @classmethod
     def from_path(cls, path: Path):

@@ -31,7 +31,6 @@ def get_app_icon_pixbuf(
     return None
 
 
-
 def get_user_login_name():
     login_name = os.getenv("LOGNAME")
     return login_name if login_name else "user"
