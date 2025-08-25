@@ -54,6 +54,7 @@ class Calendar(Box):
             style_classes="month-skip-button",
             child=Label(
                 markup=Icons.arrow_left,
+                style_classes="skip-button-label",
             ),
             on_clicked=self.do_select_prev,
         )
@@ -63,6 +64,7 @@ class Calendar(Box):
             style_classes="month-skip-button",
             child=Label(
                 markup=Icons.arrow_right,
+                style_classes="skip-button-label",
             ),
             on_clicked=self.do_select_next,
         )

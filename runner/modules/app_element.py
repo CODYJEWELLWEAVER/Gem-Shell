@@ -37,7 +37,7 @@ class AppElement(Button):
     def run_app(self, *args):
         exec_shell_command_async(f"gtk-launch {self.app.path.name}")
         exit(0)
-
+        
 
 class AppElementList:
     def __init__(self, app_elements: list[AppElement]):

@@ -24,7 +24,7 @@ class Runner(Window):
             anchor="center",
             exclusivity="none",
             keyboard_mode="exclusive",
-            title="Gem-Runner",
+            title="gem-runner",
             name="runner-window",
             **kwargs,
         )
@@ -108,6 +108,10 @@ class Runner(Window):
 
     def on_notify_search_text(self, *args):
         query = self.search_entry.get_text()
+        if query == "":
+            self.app_list_box.children = self.app_element_list.get_all_elements()
+            return
+
         selected_app = self.app_list_box.children[self.selected_app_index]
         selected_app.remove_style_class("selected-element")
         self.app_list_box.children = self.app_element_list.search(query)
