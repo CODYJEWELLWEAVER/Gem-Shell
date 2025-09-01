@@ -122,7 +122,10 @@ class Runner(Window):
 
         desktop_apps = self.get_desktop_apps(paths)
 
-        return [AppElement(app) for app in desktop_apps]
+        return [
+            AppElement(app, lambda name: self.app_element_list.record_history(name))
+            for app in desktop_apps
+        ]
 
     def get_app_paths(self) -> list[Path]:
         paths = []

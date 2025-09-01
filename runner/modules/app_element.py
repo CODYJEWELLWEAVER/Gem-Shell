@@ -1,3 +1,4 @@
+from typing import Callable
 from fabric.widgets.box import Box
 from fabric.widgets.image import Image
 from fabric.widgets.label import Label
@@ -7,11 +8,16 @@ from fabric.utils.helpers import exec_shell_command_async, truncate
 from modules.desktop_app import DesktopApp
 from helpers import add_hover_cursor
 import string
+from pathlib import Path
+from loguru import logger
+import json
 
+HISTORY_FILE_PATH = "/home/cody/.shell/runner_history.json"
 
 class AppElement(Button):
-    def __init__(self, app: DesktopApp, **kwargs):
+    def __init__(self, app: DesktopApp, history_callback: Callable, **kwargs):
         self.app = app
+        self.history_callback = history_callback
 
         super().__init__(
             style_classes="app-element", on_clicked=self.run_app, **kwargs
@@ -36,15 +42,31 @@ class AppElement(Button):
 
     def run_app(self, *args):
         exec_shell_command_async(f"gtk-launch {self.app.path.name}")
+        self.history_callback(self.app.name)
         exit(0)
         
 
 class AppElementList:
     def __init__(self, app_elements: list[AppElement]):
+        self._path = None
+        self._history = None
+
+        self._init_history_file()
+
         self.app_table = {element.app.name: element for element in app_elements}
 
     def get_all_elements(self) -> list[AppElement]:
-        return list(self.app_table.values())
+        elements = []
+
+        if self._history is not None:
+            for app_name in self._history:
+                elements.append(self.app_table[app_name])
+
+        for element in self.app_table.values():
+            if element not in elements:
+                elements.append(element)
+
+        return elements
 
     def search(self, query: str) -> list[AppElement]:
         query = query.lower()
@@ -79,3 +101,29 @@ class AppElementList:
                 return None
 
         return char_score
+    
+    def _init_history_file(self) -> None:
+        self._path = Path(HISTORY_FILE_PATH)
+
+        try:
+            if not self._path.exists():
+                json.dump(dict(), self._path.open("w"))
+
+            json_file = self._path.open("r+")
+        except Exception as e:
+            logger.error(
+                f"Could not initialize runner history file. Encountered error {e}"
+            )
+        else:
+            with json_file:
+                self._history = json.load(json_file)
+
+    def record_history(self, app_name: str) -> None:
+        if self._history is not None:
+            self._history.insert(0, app_name)
+            
+            if len(self._history) > 3:
+                self._history = self._history[:3]
+
+            if self._path is not None:
+                json.dump(self._history, self._path.open("w"))
