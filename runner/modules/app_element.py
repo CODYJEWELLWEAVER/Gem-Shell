@@ -119,11 +119,19 @@ class AppElementList:
                 self._history = json.load(json_file)
 
     def record_history(self, app_name: str) -> None:
-        if self._history is not None:
-            self._history.insert(0, app_name)
-            
-            if len(self._history) > 3:
-                self._history = self._history[:3]
+        if self._history is None or self._history[0] == app_name:
+            return
 
-            if self._path is not None:
-                json.dump(self._history, self._path.open("w"))
+        if app_name in self._history:
+            # ensure we remove the last used app name from the history
+            # before reinsertion
+            app_name_idx = self._history.index(app_name)
+            self._history.pop(app_name_idx)
+
+        self._history.insert(0, app_name)
+        
+        if len(self._history) > 3:
+            self._history = self._history[:3]
+
+        if self._path is not None:
+            json.dump(self._history, self._path.open("w"))
