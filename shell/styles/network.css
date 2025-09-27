@@ -71,3 +71,7 @@
     background-color: var(--background-alt);
     box-shadow: 0px 0px 5px var(--highlight);
 }
+
+.connection-element-icon {
+    font-family: tabler-icons;
+}

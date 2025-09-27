@@ -123,8 +123,8 @@ class AppElementList:
             return
 
         if app_name in self._history:
-            # ensure we remove the last used app name from the history
-            # before reinsertion
+            # remove current app_name from history if present so we
+            # can move it to the front
             app_name_idx = self._history.index(app_name)
             self._history.pop(app_name_idx)
 
