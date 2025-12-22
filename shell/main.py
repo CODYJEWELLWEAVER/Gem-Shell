@@ -8,6 +8,7 @@ from modules.notifications import NotificationPopUp
 from modules.osd import VolumeOSD
 
 from util.helpers import init_data_directory
+from util.themes import create_colortheme_from_image, update_color_styles
 from config.storage import STORAGE_DIRECTORY
 
 import asyncio
@@ -45,6 +46,10 @@ def main():
     style_monitor.connect("changed", apply_stylesheet)
 
     app.set_stylesheet_from_file(get_relative_path("main.css"))
+
+    theme = create_colortheme_from_image("/home/cody/Pictures/Wallpapers/skelly.png")
+    print(theme.schemes.light.primary)
+    update_color_styles(theme, True)
 
     app.run()
 

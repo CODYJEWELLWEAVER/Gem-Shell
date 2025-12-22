@@ -89,6 +89,7 @@ class CreateReminderView(Box):
         )
 
         back_button = Button(
+            name="cancel-create-reminder-button",
             child=Label(markup=Icons.arrow_right),
             on_clicked=self.close,
         )

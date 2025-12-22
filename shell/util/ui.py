@@ -1,6 +1,7 @@
 from typing import Literal
 from gi.repository import Gdk
 from fabric.widgets.shapes import Corner
+from fabric.widgets.eventbox import EventBox
 
 
 def add_hover_cursor(widget):
