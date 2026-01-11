@@ -6,13 +6,14 @@ from modules.bar import Bar
 from modules.control_panel import ControlPanel
 from modules.notifications import NotificationPopUp
 from modules.osd import VolumeOSD
+from services.theme import ThemeService
 
 from util.helpers import init_data_directory
-from util.themes import create_colortheme_from_image, update_color_styles
 from config.storage import STORAGE_DIRECTORY
 
 import asyncio
 from gi.events import GLibEventLoopPolicy
+from material_color_utilities import Variant
 
 
 @logger.catch
@@ -25,6 +26,8 @@ def main():
 
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
 
+    # init theme service here so we update styles on launch
+    ThemeService.get_instance()
     control_panel = ControlPanel.get_instance()
     bar = Bar()
     notification_pop_up = NotificationPopUp()
@@ -46,10 +49,6 @@ def main():
     style_monitor.connect("changed", apply_stylesheet)
 
     app.set_stylesheet_from_file(get_relative_path("main.css"))
-
-    theme = create_colortheme_from_image("/home/cody/Pictures/Wallpapers/skelly.png")
-    print(theme.schemes.light.primary)
-    update_color_styles(theme, True)
 
     app.run()
 

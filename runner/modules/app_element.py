@@ -14,14 +14,13 @@ import json
 
 HISTORY_FILE_PATH = "/home/cody/.shell/runner_history.json"
 
+
 class AppElement(Button):
     def __init__(self, app: DesktopApp, history_callback: Callable, **kwargs):
         self.app = app
         self.history_callback = history_callback
 
-        super().__init__(
-            style_classes="app-element", on_clicked=self.run_app, **kwargs
-        )
+        super().__init__(style_classes="app-element", on_clicked=self.run_app, **kwargs)
 
         box = Box(
             style_classes="app-element-button-box",
@@ -44,7 +43,7 @@ class AppElement(Button):
         exec_shell_command_async(f"gtk-launch {self.app.path.name}")
         self.history_callback(self.app.name)
         exit(0)
-        
+
 
 class AppElementList:
     def __init__(self, app_elements: list[AppElement]):
@@ -101,7 +100,7 @@ class AppElementList:
                 return None
 
         return char_score
-    
+
     def _init_history_file(self) -> None:
         self._path = Path(HISTORY_FILE_PATH)
 
@@ -129,7 +128,7 @@ class AppElementList:
             self._history.pop(app_name_idx)
 
         self._history.insert(0, app_name)
-        
+
         if len(self._history) > 3:
             self._history = self._history[:3]
 

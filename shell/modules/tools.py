@@ -12,7 +12,22 @@ from gi.repository import GLib
 
 
 class ToolButton(Button):
-    def __init__(self, icon: str, label: str, on_clicked: Callable, **kwargs):
+    def __init__(self, icon: str, label: str | None, on_clicked: Callable, **kwargs):
+        children = [
+            Label(
+                markup=icon,
+                style_classes="tool-icon",
+            ),
+        ]
+
+        if label is not None:
+            children.append(
+                Label(
+                    label=label,
+                    style_classes="tool-label",
+                )
+            )
+
         super().__init__(
             style_classes="tool-button",
             child=Box(
@@ -20,16 +35,7 @@ class ToolButton(Button):
                 orientation="h",
                 h_align="center",
                 v_align="center",
-                children=[
-                    Label(
-                        markup=icon,
-                        style_classes="tool-icon",
-                    ),
-                    Label(
-                        label=label,
-                        style_classes="tool-label",
-                    ),
-                ],
+                children=children,
             ),
             on_clicked=on_clicked,
             **kwargs,
@@ -100,3 +106,8 @@ class SilentModeToggle(ToolButton):
             self.add_style_class("silent-mode-on")
         else:
             self.remove_style_class("silent-mode-on")
+
+
+class ThemeSettingsToggle(ToolButton):
+    def __init__(self, **kwargs):
+        super().__init__(icon=Icons.brush, label=None, on_clicked=lambda _: None)

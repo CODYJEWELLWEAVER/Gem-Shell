@@ -1,4 +1,5 @@
 from gi.repository import GdkPixbuf, Gtk, Gdk
+from loguru import logger
 
 
 def get_app_icon_pixbuf(
@@ -13,7 +14,8 @@ def get_app_icon_pixbuf(
                 icon_path, width, height, preserve_aspect_ratio
             )
             return icon_pixbuf
-        except:
+        except Exception as e:
+            logger.error(f"{e}")
             return None
 
     return None

@@ -14,6 +14,7 @@
 @import url(./styles/todo.css);
 @import url(./styles/tools.css);
 @import url(./styles/bluetooth.css);
+@import url(./styles/theme.css);
 
 * {
     all: unset;

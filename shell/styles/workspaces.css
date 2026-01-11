@@ -20,7 +20,7 @@
 }
 
 #workspaces > button.empty {
-    background-color: var(--background-highlight);
+    background-color: var(--background-alt);
 }
 
 #workspaces > button.urgent {

@@ -299,6 +299,7 @@ class DayButton(Button):
 
         add_hover_cursor(self)
 
+
 class MonthButton(Button):
     def __init__(self, month_name: str, **kwargs):
         super().__init__(
@@ -308,6 +309,7 @@ class MonthButton(Button):
         )
 
         add_hover_cursor(self)
+
 
 class HolidayBox(Box):
     def __init__(self, holiday: str, holiday_icon: str, **kwargs):

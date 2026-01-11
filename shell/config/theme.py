@@ -1,3 +1,24 @@
 import os
+from pathlib import Path
 
-COLOR_STYLESHEET = os.getcwd() + "/styles/colors.css"
+from material_color_utilities import Variant
+
+from util.theme import ThemeColors
+
+COLOR_STYLESHEET = os.getcwd() + "/shell/styles/colors.css"
+
+CURRENT_WALLPAPER_PATH = Path("/home/cody/Pictures/Wallpapers/current")
+
+DEFAULT_COLOR_THEME = ThemeColors(
+    "#8ad7a8",
+    "#e6e0ec",
+    "#14121a",
+    "#222028",
+    "#3d3a43",
+    "#d0bef6",
+    "#ffb4ab",
+)
+
+DEFAULT_VARIANT = Variant.EXPRESSIVE
+
+DEFAULT_CONTRAST: float = 0.1
