@@ -13,9 +13,22 @@ def get_file_path_from_mpris_url(mpris_url: str) -> str:
     return Path.from_uri(mpris_url).__fspath__()
 
 
+def get_pixbuff(
+    path: str, width: int, height: int, preserve_aspect_ration: bool = True
+) -> GdkPixbuf.Pixbuf | None:
+    try:
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+            path, width, height, preserve_aspect_ration
+        )
+        return pixbuf
+    except Exception as e:
+        logger.error(f"{e}")
+        return None
+
+
 def get_app_icon_pixbuf(
     name: str, width: int, height: int, preserve_aspect_ratio: bool = True
-) -> GdkPixbuf.Pixbuf:
+) -> GdkPixbuf.Pixbuf | None:
     icon_theme = Gtk.IconTheme.get_default()
     icon_info = icon_theme.lookup_icon(name, width, 0)  # No Flags
     if icon_info is not None:
@@ -25,7 +38,8 @@ def get_app_icon_pixbuf(
                 icon_path, width, height, preserve_aspect_ratio
             )
             return icon_pixbuf
-        except Exception:
+        except Exception as e:
+            logger.error(f"{e}")
             return None
 
     return None

@@ -110,4 +110,4 @@ class SilentModeToggle(ToolButton):
 
 class ThemeSettingsToggle(ToolButton):
     def __init__(self, **kwargs):
-        super().__init__(icon=Icons.brush, label=None, on_clicked=lambda _: None)
+        super().__init__(icon=Icons.brush, label=None, **kwargs)

@@ -16,6 +16,7 @@ from modules.notifications import NotificationsOverview
 from services.reminders import ReminderService
 from modules.reminders import CreateReminderView
 from modules.todo import ToDoList
+from modules.theme import ThemeSettings
 from modules.tools import (
     ScreenshotTool,
     HyprPickerTool,
@@ -51,7 +52,7 @@ class ControlPanel(Window, Singleton):
 
         self.bluetooth_connection_settings = BluetoothConnections(self.show_main_view)
 
-        self.theme_settings = Box()
+        self.theme_settings = ThemeSettings(self.show_main_view)
 
         self.notifications_overview = NotificationsOverview(
             on_switch=self.show_to_do_list
@@ -99,7 +100,9 @@ class ControlPanel(Window, Singleton):
         self.screenshot_tool = ScreenshotTool()
         self.hyprpicker_tool = HyprPickerTool()
         self.silent_mode_toggle = SilentModeToggle()
-        self.show_theme_settings = ThemeSettingsToggle()
+        self.theme_tool_toggle = ThemeSettingsToggle(
+            on_clicked=self.show_theme_settings_view
+        )
 
         self.productivity_stack = Stack(
             transition_duration=250,
@@ -131,7 +134,7 @@ class ControlPanel(Window, Singleton):
                 self.screenshot_tool,
                 self.hyprpicker_tool,
                 self.silent_mode_toggle,
-                self.show_theme_settings,
+                self.theme_tool_toggle,
             ],
         )
 
@@ -199,6 +202,7 @@ class ControlPanel(Window, Singleton):
                 self.network_connections_view,
                 self.bluetooth_connections_view,
                 self.create_reminder_view,
+                self.theme_settings_view,
             ],
         )
 

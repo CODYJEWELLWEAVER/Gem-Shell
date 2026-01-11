@@ -6,10 +6,13 @@ from util.singleton import Singleton
 from util.theme import (
     ThemeColors,
 )
+
 from material_color_utilities import Theme, theme_from_image, Variant
-from config.theme import COLOR_STYLESHEET, CURRENT_WALLPAPER_PATH
+from config.theme import COLOR_STYLESHEET, CURRENT_WALLPAPER_PATH, WALLPAPERS_DIR
 import re
 from PIL import Image
+from pathlib import Path
+from loguru import logger
 
 
 class ThemeService(Service, Singleton):
@@ -21,18 +24,17 @@ class ThemeService(Service, Singleton):
         self._variant = DEFAULT_VARIANT
         self._contrast = DEFAULT_CONTRAST
         self._dark = True
+        self._wallpapers = []
 
+        self.load_wallpapers()
         self.update_theme()
 
-        self.connect(
-            "theme-changed",
-            self.update_theme
-        )
+        self.connect("theme-changed", self.update_theme)
 
     @Signal
     def theme_changed(self) -> None: ...
 
-    @Property(ThemeColors, flags="readable")
+    @Property(ThemeColors, flags="read-write")
     def colors(self) -> ThemeColors:
         return self._colors
 
@@ -41,7 +43,7 @@ class ThemeService(Service, Singleton):
         self._colors = colors
         self.theme_changed()
 
-    @Property(Variant, flags="readable")
+    @Property(Variant, flags="read-write")
     def variant(self) -> Variant:
         return self._variant
 
@@ -50,7 +52,7 @@ class ThemeService(Service, Singleton):
         self._variant = variant
         self.theme_changed()
 
-    @Property(float, "readable")
+    @Property(float, "read-write")
     def contrast(self) -> float:
         return self._contrast
 
@@ -59,7 +61,7 @@ class ThemeService(Service, Singleton):
         self._contrast = contrast
         self.theme_changed()
 
-    @Property(bool, "readable", default_value=True)
+    @Property(bool, "read-write", default_value=True)
     def dark(self) -> bool:
         return self._dark
 
@@ -68,9 +70,17 @@ class ThemeService(Service, Singleton):
         self._dark = dark
         self.theme_changed()
 
-    def update_theme(self):
+    @Property(list[Path], "read-write")
+    def wallpapers(self) -> list[Path]:
+        return self._wallpapers
+
+    @wallpapers.setter
+    def wallpapers(self, new_wallpapers: list[Path]) -> None:
+        self._wallpapers = new_wallpapers
+
+    def update_theme(self, *args):
         self._colors = self.create_colortheme_from_image(
-            CURRENT_WALLPAPER_PATH.resolve(), self.contrast, self.variant, self.dark
+            self._wallpaper.resolve(), self.contrast, self.variant, self.dark
         )
         self.update_color_styles()
 
@@ -143,10 +153,17 @@ class ThemeService(Service, Singleton):
         except Exception as e:
             print(f"Error: Could not update color styles! {e}")
 
-    def update_wallpaper(self, new_path: str) -> None:
+    def update_wallpaper(self, new_path: Path) -> None:
         proc, _ = exec_shell_command_async(
-            f"ln -sf {new_path} {CURRENT_WALLPAPER_PATH.absolute()}"
+            f"ln -sf {str(new_path)} {self._wallpaper.absolute()}"
         )
 
         if proc is not None:
-            proc.wait_async(None, lambda _: self.theme_changed(), None)
+            proc.wait_async(None, lambda *_: self.theme_changed(), None)
+
+    def load_wallpapers(self) -> None:
+        if not WALLPAPERS_DIR.exists() or not WALLPAPERS_DIR.is_dir():
+            logger.error("WALLPAPER DIRECTORY DOES NOT EXIST!")
+            return []
+
+        self.wallpapers = [path for path in WALLPAPERS_DIR.iterdir()]

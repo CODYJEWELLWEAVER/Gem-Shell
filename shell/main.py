@@ -13,7 +13,6 @@ from config.storage import STORAGE_DIRECTORY
 
 import asyncio
 from gi.events import GLibEventLoopPolicy
-from material_color_utilities import Variant
 
 
 @logger.catch

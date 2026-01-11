@@ -7,7 +7,9 @@ from util.theme import ThemeColors
 
 COLOR_STYLESHEET = os.getcwd() + "/shell/styles/colors.css"
 
-CURRENT_WALLPAPER_PATH = Path("/home/cody/Pictures/Wallpapers/current")
+WALLPAPERS_DIR = Path("~/Pictures/Wallpapers").expanduser()
+
+CURRENT_WALLPAPER_PATH = Path("~/Pictures/Wallpapers/current").expanduser()
 
 DEFAULT_COLOR_THEME = ThemeColors(
     "#8ad7a8",
