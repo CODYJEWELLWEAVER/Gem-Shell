@@ -1,5 +1,5 @@
 from fabric.core.service import Service, Property, Signal
-from fabric.utils.helpers import exec_shell_command_async
+from fabric.utils.helpers import exec_shell_command_async, invoke_repeater
 
 from config.theme import DEFAULT_COLOR_THEME, DEFAULT_CONTRAST, DEFAULT_VARIANT
 from util.singleton import Singleton
@@ -13,11 +13,16 @@ import re
 from PIL import Image
 from pathlib import Path
 from loguru import logger
+import asyncio
+
+REFRESH_WALLPAPERS_TIMEOUT = 60000
 
 
 class ThemeService(Service, Singleton):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+        self._loop = asyncio.get_event_loop()
 
         self._wallpaper = CURRENT_WALLPAPER_PATH
         self._colors = DEFAULT_COLOR_THEME
@@ -31,6 +36,10 @@ class ThemeService(Service, Singleton):
 
         self.connect("theme-changed", self.update_theme)
 
+        invoke_repeater(
+            REFRESH_WALLPAPERS_TIMEOUT, self.load_wallpapers, initial_call=False
+        )
+
     @Signal
     def theme_changed(self) -> None: ...
 
@@ -42,6 +51,7 @@ class ThemeService(Service, Singleton):
     def colors(self, colors: ThemeColors) -> None:
         self._colors = colors
         self.theme_changed()
+        self.notify("colors")
 
     @Property(Variant, flags="read-write")
     def variant(self) -> Variant:
@@ -51,6 +61,7 @@ class ThemeService(Service, Singleton):
     def variant(self, variant: Variant) -> None:
         self._variant = variant
         self.theme_changed()
+        self.notify("variant")
 
     @Property(float, "read-write")
     def contrast(self) -> float:
@@ -60,6 +71,7 @@ class ThemeService(Service, Singleton):
     def contrast(self, contrast: float) -> None:
         self._contrast = contrast
         self.theme_changed()
+        self.notify("contrast")
 
     @Property(bool, "read-write", default_value=True)
     def dark(self) -> bool:
@@ -69,6 +81,7 @@ class ThemeService(Service, Singleton):
     def dark(self, dark: bool) -> None:
         self._dark = dark
         self.theme_changed()
+        self.notify("dark")
 
     @Property(list[Path], "read-write")
     def wallpapers(self) -> list[Path]:
@@ -77,12 +90,16 @@ class ThemeService(Service, Singleton):
     @wallpapers.setter
     def wallpapers(self, new_wallpapers: list[Path]) -> None:
         self._wallpapers = new_wallpapers
+        self.notify("wallpapers")
 
     def update_theme(self, *args):
-        self._colors = self.create_colortheme_from_image(
-            self._wallpaper.resolve(), self.contrast, self.variant, self.dark
-        )
-        self.update_color_styles()
+        async def _update():
+            self._colors = self.create_colortheme_from_image(
+                self._wallpaper.resolve(), self.contrast, self.variant, self.dark
+            )
+            self.update_color_styles()
+
+        self._loop.create_task(_update())
 
     def create_colortheme_from_image(
         self, image_path: str, contrast: float, variant: Variant, use_dark: bool
@@ -153,15 +170,27 @@ class ThemeService(Service, Singleton):
         except Exception as e:
             print(f"Error: Could not update color styles! {e}")
 
+    def hyprpaper_update(self):
+        exec_shell_command_async(
+            f"hyprctl hyprpaper preload {str(self._wallpaper.resolve())}"
+        )
+        exec_shell_command_async(
+            f"hyprctl hyprpaper wallpaper , {str(self._wallpaper.resolve())}"
+        )
+
     def update_wallpaper(self, new_path: Path) -> None:
         proc, _ = exec_shell_command_async(
             f"ln -sf {str(new_path)} {self._wallpaper.absolute()}"
         )
 
-        if proc is not None:
-            proc.wait_async(None, lambda *_: self.theme_changed(), None)
+        def on_sm_created(*args):
+            self.theme_changed()
+            self.hyprpaper_update()
 
-    def load_wallpapers(self) -> None:
+        if proc is not None:
+            proc.wait_async(None, on_sm_created, None)
+
+    def load_wallpapers(self, *args) -> None:
         if not WALLPAPERS_DIR.exists() or not WALLPAPERS_DIR.is_dir():
             logger.error("WALLPAPER DIRECTORY DOES NOT EXIST!")
             return []

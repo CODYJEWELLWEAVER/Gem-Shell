@@ -1,8 +1,24 @@
-.theme-overview-icon {
+.theme-icon {
     font-family: tabler-icons;
+    font-size: 40px;
 }
 
 .wallpaper-viewer-scrolled-window {
-    min-width: 500px;
-    min-height: 300px;
+    min-width: 600px;
+    min-height: 500px;
+}
+
+#theme-contrast-scale trough {
+    min-height: 10px;
+    min-width: 300px;
+}
+
+#theme-contrast-scale trough highlight {
+    background-color: var(--foreground);
+    min-height: 12px;
+    min-width: 12px;
+}
+
+#theme-contrast-scale slider {
+    background-color: var(--background);
 }
