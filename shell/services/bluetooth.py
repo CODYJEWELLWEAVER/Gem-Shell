@@ -15,9 +15,9 @@ class BluetoothService(BluetoothClient, Singleton):
             return self.connected_devices[0]
         else:
             return None
-        
+
     def on_device_removed(self, _, object_path: str):
-        #NOTE: The original version of this function causes crashes
+        # NOTE: The original version of this function causes crashes
         # removing the call to device.close() is the only thing that fixes the crashes for me.
         addr = object_path.split("/")[-1][4:].replace("_", ":")
         if not (device := self._devices.pop(addr, None)):

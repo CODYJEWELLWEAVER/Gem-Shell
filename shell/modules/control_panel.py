@@ -16,7 +16,13 @@ from modules.notifications import NotificationsOverview
 from services.reminders import ReminderService
 from modules.reminders import CreateReminderView
 from modules.todo import ToDoList
-from modules.tools import ScreenshotTool, HyprPickerTool, SilentModeToggle
+from modules.theme import ThemeSettings
+from modules.tools import (
+    ScreenshotTool,
+    HyprPickerTool,
+    SilentModeToggle,
+    ThemeSettingsToggle,
+)
 from util.ui import corner
 
 from gi.repository import GdkPixbuf
@@ -45,6 +51,8 @@ class ControlPanel(Window, Singleton):
         self.network_connection_settings = ConnectionSettings(self.show_main_view)
 
         self.bluetooth_connection_settings = BluetoothConnections(self.show_main_view)
+
+        self.theme_settings = ThemeSettings(self.show_main_view)
 
         self.notifications_overview = NotificationsOverview(
             on_switch=self.show_to_do_list
@@ -92,6 +100,9 @@ class ControlPanel(Window, Singleton):
         self.screenshot_tool = ScreenshotTool()
         self.hyprpicker_tool = HyprPickerTool()
         self.silent_mode_toggle = SilentModeToggle()
+        self.theme_tool_toggle = ThemeSettingsToggle(
+            on_clicked=self.show_theme_settings_view
+        )
 
         self.productivity_stack = Stack(
             transition_duration=250,
@@ -123,6 +134,7 @@ class ControlPanel(Window, Singleton):
                 self.screenshot_tool,
                 self.hyprpicker_tool,
                 self.silent_mode_toggle,
+                self.theme_tool_toggle,
             ],
         )
 
@@ -170,6 +182,15 @@ class ControlPanel(Window, Singleton):
             ],
         )
 
+        self.theme_settings_view = Box(
+            orientation="h",
+            children=[
+                corner("left", "large"),
+                self.theme_settings,
+                corner("right", "large"),
+            ],
+        )
+
         self.main_content_stack = Stack(
             transition_type="over-down-up",
             transition_duration=250,
@@ -181,6 +202,7 @@ class ControlPanel(Window, Singleton):
                 self.network_connections_view,
                 self.bluetooth_connections_view,
                 self.create_reminder_view,
+                self.theme_settings_view,
             ],
         )
 
@@ -206,6 +228,9 @@ class ControlPanel(Window, Singleton):
     def show_reminder_creation_view(self, *args):
         self.create_reminder.set_date()
         self.main_content_stack.set_visible_child(self.create_reminder_view)
+
+    def show_theme_settings_view(self, *args):
+        self.main_content_stack.set_visible_child(self.theme_settings_view)
 
     def show_to_do_list(self, *args):
         self.productivity_stack.set_visible_child(self.to_do_list)

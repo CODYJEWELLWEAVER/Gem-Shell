@@ -6,6 +6,7 @@ from modules.bar import Bar
 from modules.control_panel import ControlPanel
 from modules.notifications import NotificationPopUp
 from modules.osd import VolumeOSD
+from services.theme import ThemeService
 
 from util.helpers import init_data_directory
 from config.storage import STORAGE_DIRECTORY
@@ -24,6 +25,8 @@ def main():
 
     asyncio.set_event_loop_policy(GLibEventLoopPolicy())
 
+    # init theme service here so we update styles on launch
+    ThemeService.get_instance()
     control_panel = ControlPanel.get_instance()
     bar = Bar()
     notification_pop_up = NotificationPopUp()

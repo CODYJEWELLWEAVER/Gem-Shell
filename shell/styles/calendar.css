@@ -2,8 +2,8 @@
     padding: 30px;
     min-width: 400px;
     min-height: 350px;
-    background-color: var(--background-highlight);
-    box-shadow: 0px 0px 5px var(--background-highlight);
+    background-color: var(--background-alt);
+    box-shadow: 0px 0px 5px var(--background-alt);
 }
 
 #calendar-swap-button {
@@ -12,8 +12,12 @@
 }
 
 #calendar-swap-button:hover {
-    background-color: var(--background-alt);
+    background-color: var(--background-highlight);
     box-shadow: 0px 0px 10px var(--highlight);
+}
+
+#calendar-swap-button:hover label {
+    color: var(--foreground-alt);
 }
 
 .calendar-date-label {
@@ -26,7 +30,7 @@
 
 .alt-day-button-label {
     font-size: 25px;
-    color: var(--highlight);
+    color: var(--foreground-alt);
 }
 
 .day-button {
@@ -36,8 +40,12 @@
 }
 
 .day-button:hover {
-    background-color: var(--background-alt);
+    background-color: var(--background-highlight);
     box-shadow: 0px 0px 10px var(--highlight);
+}
+
+.day-button:hover label {
+    color: var(--foreground-alt);
 }
 
 .month-button-label {
@@ -51,21 +59,34 @@
 }
 
 .month-button:hover {
-    background-color: var(--background-alt);
+    background-color: var(--background-highlight);
     box-shadow: 0px 0px 10px var(--highlight);
 }
 
+.month-button:hover label {
+    color: var(--foreground-alt);
+}
+
 #today {
-    background-color: var(--background-alt);
-    box-shadow: 0px 0px 5px var(--background-alt);
+    background-color: var(--background-highlight);
+    box-shadow: 0px 0px 5px var(--background-highlight);
 }
 
 #today:hover {
     box-shadow: 0px 0px 5px var(--highlight);
 }
 
+#today:hover {
+    color: var(--foreground-alt);
+}
+
 #current-month {
-    background-color: var(--background-alt);
+    background-color: var(--background-highlight);
+    box-shadow: 0px 0px 10px var(--background-highlight);
+}
+
+#current-month:hover {
+    box-shadow: 0px 0px 10px var(--highlight);
 }
 
 .month-skip-button {
@@ -74,8 +95,12 @@
 }
 
 .month-skip-button:hover {
-    background-color: var(--background-alt);
+    background-color: var(--background-highlight);
     box-shadow: 0px 0px 10px var(--highlight);
+}
+
+.month-skip-button:hover {
+    color: var(--foreground-alt);
 }
 
 .day-view-item {

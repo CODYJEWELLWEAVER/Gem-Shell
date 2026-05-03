@@ -79,7 +79,9 @@ class Runner(Window):
             new_index = max(0, self.selected_app_index - 1)
             self.select_app_element(new_index)
         elif event.keyval == DOWN_ARROW_KEY_CODE:
-            new_index = min(len(self.app_list_box.children) - 1, self.selected_app_index + 1)
+            new_index = min(
+                len(self.app_list_box.children) - 1, self.selected_app_index + 1
+            )
             self.select_app_element(new_index)
 
         return False

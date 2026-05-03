@@ -1,8 +1,8 @@
 #notifications-overview {
     padding: 10px;
     min-width: 500px;
-    background-color: var(--background-highlight);
-    box-shadow: 0px 0px 5px var(--background-highlight);
+    background-color: var(--background-alt);
+    box-shadow: 0px 0px 5px var(--background-alt);
 }
 
 #notifications-list {
@@ -12,8 +12,8 @@
 .notification-overview-element {
     margin: 2px 0px;
     padding: 10px;
-    background-color: var(--background-alt);
-    box-shadow: 0px 0px 5px var(--background-alt);
+    background-color: var(--background-highlight);
+    box-shadow: 0px 0px 5px var(--background-highlight);
 }
 
 .notification-overview-element-app-name {

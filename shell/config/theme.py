@@ -1,0 +1,26 @@
+import os
+from pathlib import Path
+
+from material_color_utilities import Variant
+
+from util.theme import ThemeColors
+
+COLOR_STYLESHEET = os.getcwd() + "/shell/styles/colors.css"
+
+WALLPAPERS_DIR = Path("~/Pictures/Wallpapers").expanduser()
+
+CURRENT_WALLPAPER_PATH = Path("~/Pictures/Wallpapers/current").expanduser()
+
+DEFAULT_COLOR_THEME = ThemeColors(
+    "#8ad7a8",
+    "#e6e0ec",
+    "#14121a",
+    "#222028",
+    "#3d3a43",
+    "#d0bef6",
+    "#ffb4ab",
+)
+
+DEFAULT_VARIANT = Variant.EXPRESSIVE
+
+DEFAULT_CONTRAST: float = 10.0
