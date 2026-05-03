@@ -1,10 +1,10 @@
 :vars {
-    --foreground: #b5ffe6;
+    --foreground: #e8f0ff;
     --foreground-alt: #ffffff;
-    --background: #161219;
-    --background-alt: #332f37;
-    --background-highlight: #544e57;
-    --highlight: #fbebff;
+    --background: #1c110f;
+    --background-alt: #3b2d2b;
+    --background-highlight: #5d4c4a;
+    --highlight: #dcfab9;
     --status-ok: #1eae42;
     --status-fail: #ffece9;
 }
