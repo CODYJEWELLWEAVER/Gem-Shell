@@ -107,6 +107,7 @@ class Runner(Window):
     def run_selected_app(self):
         selected_app = self.app_list_box.children[self.selected_app_index]
         selected_app.run_app()
+        exit(0)
 
     def on_notify_search_text(self, *args):
         query = self.search_entry.get_text()

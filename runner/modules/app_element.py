@@ -106,7 +106,7 @@ class AppElementList:
 
         try:
             if not self._path.exists():
-                json.dump(dict(), self._path.open("w"))
+                json.dump(list(), self._path.open("w"))
 
             json_file = self._path.open("r+")
         except Exception as e:
@@ -118,7 +118,7 @@ class AppElementList:
                 self._history = json.load(json_file)
 
     def record_history(self, app_name: str) -> None:
-        if self._history is None or self._history[0] == app_name:
+        if self._history is None or (len(self._history) > 0 and self._history[0]) == app_name:
             return
 
         if app_name in self._history:
