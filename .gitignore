@@ -1,9 +1,3 @@
-# Autostart script
-start.sh
-
-# ruff linting and formatting script
-lint.sh
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

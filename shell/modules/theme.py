@@ -50,7 +50,6 @@ class ThemeSettings(Box):
         self.children = [
             self.refresh_button,
             self.wallpaper_viewer,
-            self.theme_options,
             self.back_button,
         ]
 

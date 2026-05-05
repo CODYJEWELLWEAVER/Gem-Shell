@@ -20,7 +20,7 @@
     all: unset;
     color: var(--foreground);
     font-family: "FantasqueSansM Nerd Font Mono";
-    font-size: 30px;
+    font-size: 28px;
     border-radius: 20px;
 }
 

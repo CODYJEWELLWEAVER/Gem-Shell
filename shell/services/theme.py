@@ -1,5 +1,5 @@
 from fabric.core.service import Service, Property, Signal
-from fabric.utils.helpers import exec_shell_command_async, invoke_repeater
+from fabric.utils.helpers import exec_shell_command_async, invoke_repeater, exec_shell_command
 
 from config.theme import DEFAULT_COLOR_THEME, DEFAULT_CONTRAST, DEFAULT_VARIANT
 from util.singleton import Singleton
@@ -171,16 +171,14 @@ class ThemeService(Service, Singleton):
             print(f"Error: Could not update color styles! {e}")
 
     def hyprpaper_update(self):
-        exec_shell_command_async(
-            f"hyprctl hyprpaper preload {str(self._wallpaper.resolve())}"
-        )
-        exec_shell_command_async(
-            f"hyprctl hyprpaper wallpaper , {str(self._wallpaper.resolve())}"
-        )
+        exec_shell_command(f"hyprctl hyprpaper wallpaper , {CURRENT_WALLPAPER_PATH},")
 
     def update_wallpaper(self, new_path: Path) -> None:
+        # gotta trick hyprpaper into thinking the symlink is a photo
+        if " " in str(new_path):
+            logger.error("New wallpaper path contains a space. Spaces are not allowed in wallpaper paths.")
         proc, _ = exec_shell_command_async(
-            f"ln -sf {str(new_path)} {self._wallpaper.absolute()}"
+            f"ln -sf {str(new_path)} {self._wallpaper}"
         )
 
         def on_sm_created(*args):

@@ -9,7 +9,7 @@ COLOR_STYLESHEET = os.getcwd() + "/shell/styles/colors.css"
 
 WALLPAPERS_DIR = Path("~/Pictures/Wallpapers").expanduser()
 
-CURRENT_WALLPAPER_PATH = Path("~/Pictures/Wallpapers/current").expanduser()
+CURRENT_WALLPAPER_PATH = Path("~/Pictures/Wallpapers/current.png").expanduser()
 
 DEFAULT_COLOR_THEME = ThemeColors(
     "#8ad7a8",
