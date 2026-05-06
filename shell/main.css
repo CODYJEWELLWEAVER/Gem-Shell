@@ -20,7 +20,7 @@
     all: unset;
     color: var(--foreground);
     font-family: "Lilex Nerd Font Mono";
-    font-size: 28px;
+    font-size: 22px;
     border-radius: 20px;
 }
 

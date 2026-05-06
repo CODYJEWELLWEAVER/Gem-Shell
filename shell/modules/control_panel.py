@@ -36,7 +36,7 @@ class ControlPanel(Window, Singleton):
             name="control-panel",
             anchor="top center",
             exclusivity="none",
-            margin="-62px 0px 0px 0px",
+            margin="-70px 0px 0px 0px",
             visible=False,
             keyboard_mode="on-demand",
             kwargs=kwargs,
