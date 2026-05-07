@@ -8,17 +8,16 @@
 
 .media-control-icon {
     font-family: tabler-icons;
-    font-size: 22px;
+    font-size: 24px;
 }
 
 #info-box {
-    padding-top: 5px;
     padding-left: 10px;
     margin: 10px 0px;
 }
 
 #info-box-title {
-    font-size: 10px;
+    font-size: 12px;
 }
 
 #info-box-artist {
